@@ -25,3 +25,18 @@ When prompted:
 2. Enter ports to scan (e.g., `80` or `22,80,443`)
 
 ## Example Output
+
+```
+Enter the host: google.com
+Enter the ports: 80,443,22
+
+Scanning google.com...
+Port 80: OPEN
+Port 443: OPEN
+Port 22: CLOSED
+```
+
+## Author
+Mike McGregor
+
+Built as a learning project to understand Python fundamentals and basic networking concepts.
