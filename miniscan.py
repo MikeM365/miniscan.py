@@ -5,7 +5,7 @@ Mini TCP port scanner (educational)
 
 
 Sequential (no threads), text output only
-Applies: "secure" if port>1024
+Applies: "privileged" if port<=1024
 Only scan systems you own or have explicit permission to test
 
 """
@@ -14,14 +14,14 @@ import argparse
 import socket
 from typing import Iterable, List
 
-Default_ports = [1025,80, 443, 22, 25, 3389, 1433, 1521, 3306, 5432, 5900,]
-Default_timeout = 0.5
+DEFAULT_PORTS = [1025, 80, 443, 22, 25, 3389, 1433, 1521, 3306, 5432, 5900]
+DEFAULT_TIMEOUT = 0.5
 
-def is_port_secure(port: int) -> bool:
-    return port > 1024
+def is_port_privileged(port: int) -> bool:
+    return port <= 1024
 
 def validate_port(p: int) -> int:
-    if not (1<= p <= 65535):
+    if not (1 <= p <= 65535):
         raise argparse.ArgumentTypeError(f"Port {p} is out of range (1-65535).")
     return p
 
@@ -41,7 +41,7 @@ def parse_port_list(port_list: str) -> List[int]:
 
     return ports
 
-def is_open(host: str, port: int, timeout: float = Default_timeout) -> bool:
+def is_open(host: str, port: int, timeout: float = DEFAULT_TIMEOUT) -> bool:
     try:
         with socket.create_connection((host, port), timeout=timeout):
             return True # Port is open
@@ -49,7 +49,7 @@ def is_open(host: str, port: int, timeout: float = Default_timeout) -> bool:
         return False
         # Port is closed or filtered
 
-def scan(host: str, ports: Iterable[int], timeout: float = Default_timeout):
+def scan(host: str, ports: Iterable[int], timeout: float = DEFAULT_TIMEOUT):
     # Dedupe and sort for tidy output
     unique_ports = sorted({int(p) for p in ports})
     results = []
@@ -58,9 +58,9 @@ def scan(host: str, ports: Iterable[int], timeout: float = Default_timeout):
             {
                 "port": p,
                 "open": is_open(host, p, timeout),
-                "secure": is_port_secure(p)
+                "privileged": is_port_privileged(p)
             }
-            ) 
+            )
     return results
 
 def print_results(host: str, results: List[dict]) -> None:
@@ -73,24 +73,23 @@ def print_results(host: str, results: List[dict]) -> None:
         else:
             status = "closed"
 
-        if r["secure"]:
-            secure = "secure"
+        if r["privileged"]:
+            privilege = "privileged"
         else:
-            secure = "not secure"
+            privilege = "unprivileged"
 
-        print(f"{host}:{port} is {status} ({secure})")
+        print(f"{host}:{port} is {status} ({privilege})")
 
     # Count statistics
-        total_ports = len(results)
-        open_ports = 0
+    total_ports = len(results)
+    open_ports = 0
 
-        for r in results:
-            if r["open"]:
-                open_ports = open_ports + 1
-            #open_ports += 1
+    for r in results:
+        if r["open"]:
+            open_ports = open_ports + 1
 
-        print(f"\nScanned {total_ports} ports")
-        print(f"Found {open_ports} open ports")
+    print(f"\nScanned {total_ports} ports")
+    print(f"Found {open_ports} open ports")
 
 def main():
     # Get input from user
@@ -110,22 +109,3 @@ def main():
 #Run the program
 if __name__ == "__main__":
     main()
-
-    
-
-
-
-
-
-         
-    
-    
-
-     
-
-      
-      
-      
-  
-  
-  
